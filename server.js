@@ -6,6 +6,9 @@ import authRouter from "./Routes/authRoutes.js";
 import categoryRoutes from "./Routes/categoryRoutes.js";
 import productRoutes from "./Routes/productRoutes.js";
 import cors from "cors";
+import Path from "path";
+import path from "path";
+import {fileURLToPath} from 'url'
 
 // Configure env
 dotenv.config();
@@ -13,6 +16,12 @@ dotenv.config();
 //db connection
 
 DbConnection();
+
+// es6 module fix
+
+const __filename=fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 const app = express();
 
@@ -25,14 +34,18 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
+app.use(express.static(path.join(__dirname, "./build")));
 
 //Routes
+
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/product", productRoutes);
 
-app.get("/", (req, res) => {
-  res.send("<h2>Welcome to ecommerce website </h2>");
+//client build route
+
+app.use("*", function (req, res) {
+  res.sendFile(path.join("./build/index.html"));
 });
 
 const PORTs = process.env.PORT;
